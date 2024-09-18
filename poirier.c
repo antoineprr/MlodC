@@ -19,18 +19,7 @@ int *repeat(int t1[], int t2[], int n){
             cpt++;
         }
     }
-    printf("%d", ptab);
     return ptab;
-}
-
-void afficherTable(int *ptab, int taille){
-    printf("(");
-    printf(ptab[0]);
-    for (int i=1; i<taille; i++){
-        printf(",");
-        printf("%d", ptab[i]);
-    }
-    printf(")");
 }
 
 
@@ -38,8 +27,16 @@ int main(void) {
     int t1[3] = {1,2,4};
     int t2[3] = {10,3,8};
     int n = sizeof(t1)/sizeof(int);
+
+    int taille = 0;
+    for (int i=0; i<n; i++){
+        taille+=t1[i];
+    }
+
     int *ptab = repeat(t1,t2,n);
-    //afficherTable(ptab, n);
+    //for (int i=0; i<taille; i++){
+    //    printf("%d\n", ptab[i]);
+    //}
     free(ptab);
     return 0;
 }
