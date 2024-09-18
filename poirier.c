@@ -34,9 +34,11 @@ int main(void) {
     }
 
     int *ptab = repeat(t1,t2,n);
-    //for (int i=0; i<taille; i++){
-    //    printf("%d\n", ptab[i]);
-    //}
+    printf("( %d", ptab[0]);
+    for (int i=1; i<taille; i++){
+        printf(", %d", ptab[i]);
+    }
+    printf(")");
     free(ptab);
     return 0;
 }
