@@ -26,6 +26,7 @@ int *repeat(int t1[], int t2[], int n){
 int main(void) {
     int t1[3] = {1,2,4};
     int t2[3] = {10,3,8};
+
     int n = sizeof(t1)/sizeof(int);
 
     int taille = 0;
@@ -34,11 +35,14 @@ int main(void) {
     }
 
     int *ptab = repeat(t1,t2,n);
-    printf("( %d", ptab[0]);
+    
+    // affichage
+    printf("(%d", ptab[0]);
     for (int i=1; i<taille; i++){
-        printf(", %d", ptab[i]);
+        printf(",%d", ptab[i]);
     }
     printf(")");
+
     free(ptab);
     return 0;
 }
