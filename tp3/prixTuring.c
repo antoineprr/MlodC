@@ -33,6 +33,68 @@ short getYearFromBuffer(char buffer[]){
 	return year;
 }
 
+short getTailleNomFromBuffer(char buffer[]){
+	int taille = 5;
+	while(buffer[taille]!=';'){
+		taille++;
+	}
+	return taille-5;
+}
+
+short getTailleNatureFromBuffer(char buffer[], short tailleNom){
+	int taille = 6+tailleNom;
+	while(buffer[taille]!='\n'&& buffer[taille] != '\0'){
+		taille++;
+	}
+	return taille-(6+tailleNom);
+}
+
+void printNomOuNature(const char *nom) {
+    printf("%s\n", nom);
+}
+
+
+Gagnant *readWinner(FILE *f){
+	Gagnant *p = NULL;
+	p = malloc(sizeof(*p));
+	char buffer[1024];
+	fgets(buffer, sizeof(buffer),f);
+
+	// remplissage de l'année
+	p->annee = getYearFromBuffer(buffer);
+	short tailleNom = getTailleNomFromBuffer(buffer);
+
+	// remplissage du nom
+	p->nom = calloc(tailleNom+1, sizeof(char));
+	for (int j=0; j<tailleNom; j++){
+		p->nom[j]=buffer[5+j];
+	}
+	p->nom[tailleNom]='\0';
+
+	// remplissage de la nature
+	short tailleNature = getTailleNatureFromBuffer(buffer, tailleNom);
+	p->nature = calloc(tailleNature+1, sizeof(char));
+	for (int j=0; j<tailleNature; j++){
+		p->nature[j]=buffer[6+tailleNom+j];
+	}
+	p->nature[tailleNature]='\0';
+
+	return p;
+}
+
+void printAnnee(Gagnant *p, FILE *f){
+	char currentYear[4];
+	sprintf(currentYear, "%d", p->annee);
+	fwrite(currentYear, 4*sizeof(char), 1, f);
+}
+
+short tailleOfNom(Gagnant *p){
+	short cpt = 0;
+	while(p->nom[cpt]!='\0'){
+		cpt++;
+	}
+	return cpt;
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // FONCTIONS DEMANDEES
@@ -51,24 +113,21 @@ int numberOfWinners(FILE *f){
 	return nbr;
 }
 
-
 Gagnant **readWinners(FILE *f){
-	Gagnant **p;
-	int n = numberOfWinners(f);
-	p = calloc(n, sizeof(Gagnant *));
+	Gagnant **w;
+	int nbr = numberOfWinners(f);
 	fseek(f, 0, 0);
-	for (int i=0; i<n; i++){
-		Gagnant *w;
-		w = malloc(sizeof(*w));
-		char buffer[1024];
-		fgets(buffer, sizeof(buffer)/sizeof(char),f);
-		w->annee = getYearFromBuffer(buffer);
-		printf("%d\n",w->annee);
-		int cpt = 0;
+	w = calloc(nbr, sizeof(**w));
+	for (int i=0; i<nbr; i++){
+		w[i] = readWinner(f);
 	}
+	return w;
+}
 
-
-	return p;
+void printWinner(Gagnant *p, FILE *f){
+	printAnnee(p, f);
+	//short tNom = tailleOfNom(p);
+	//fwrite(p->nom, tNom, 1, f);
 }
 
 
@@ -77,7 +136,7 @@ Gagnant **readWinners(FILE *f){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, char** argv)
-{
+{	
 	char filename[] = "turingWinners.csv";
 	char outputFilename[] = "out.csv";
 
@@ -101,32 +160,17 @@ int main(int argc, char** argv)
 	}
 
 	fOut = fopen(outputFilename, "w");
-
 	int nbr = numberOfWinners(fIn);
-	Gagnant **p = readWinners(fIn);
+	Gagnant **w = readWinners(fIn);
+	printWinner(w[5], fOut);
 
 	for (int i=0; i<nbr; i++){
-		free(p[i]);
+		free(w[i]->nom); 
+		free(w[i]->nature);
+		free(w[i]);
 	}
-	free(p);
-
-
-	// char buffer[5];
-	// char test ; 
-	// int cpt;
-
-	// for (int i=0; i<2; i++){
-	// 	fgets(buffer, 5, fIn);
-	// 	cpt=0;
-	// 	while((test!='\n')&(cpt<150)){
-	// 		test = fgetc(fIn);	
-	// 		printf("%d : ",cpt);
-	// 		printf("%c\n", test);
-	// 		cpt++;
-	// 	}
-	// 	fwrite(&buffer, sizeof(buffer), 1, fOut);
-	// }
-
+	free(w);
+	
 	fclose(fIn);
 	fclose(fOut);
 
