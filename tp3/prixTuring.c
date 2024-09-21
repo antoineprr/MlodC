@@ -62,9 +62,9 @@ Gagnant *readWinner(FILE *f){
 
 	// remplissage de l'année
 	p->annee = getYearFromBuffer(buffer);
-	short tailleNom = getTailleNomFromBuffer(buffer);
 
 	// remplissage du nom
+	short tailleNom = getTailleNomFromBuffer(buffer);
 	p->nom = calloc(tailleNom+1, sizeof(char));
 	for (int j=0; j<tailleNom; j++){
 		p->nom[j]=buffer[5+j];
@@ -76,17 +76,18 @@ Gagnant *readWinner(FILE *f){
 	p->nature = calloc(tailleNature+1, sizeof(char));
 	for (int j=0; j<tailleNature; j++){
 		p->nature[j]=buffer[6+tailleNom+j];
-	}
+	}	
 	p->nature[tailleNature]='\0';
 
 	return p;
 }
 
 void printAnnee(Gagnant *p, FILE *f){
-	char currentYear[4];
-	sprintf(currentYear, "%d", p->annee);
-	fwrite(currentYear, 4*sizeof(char), 1, f);
+    char currentYear[5];  
+    sprintf(currentYear, "%d", p->annee);  
+    fwrite(currentYear, sizeof(char), 4, f); 
 }
+
 
 short tailleOfNom(Gagnant *p){
 	short cpt = 0;
@@ -94,6 +95,44 @@ short tailleOfNom(Gagnant *p){
 		cpt++;
 	}
 	return cpt;
+}
+
+short tailleOfNature(Gagnant *p){
+	short cpt = 0;
+	while(p->nature[cpt]!='\0'){
+		cpt++;
+	}
+	return cpt;
+}
+
+
+void printNom(Gagnant *p, FILE *f){
+	short nameHeight = tailleOfNom(p);
+	char buffer[nameHeight];
+	for (int j=0; j<nameHeight; j++){
+		buffer[j]=p->nom[j];
+	}
+	fwrite(buffer, nameHeight*sizeof(char), 1, f);
+}
+
+void printNature(Gagnant *p, FILE *f){
+	short topicHeight = tailleOfNature(p);
+	char buffer[topicHeight];
+	for (int j=0; j<topicHeight; j++){
+		buffer[j]=p->nature[j];
+	}
+	fwrite(buffer, topicHeight*sizeof(char), 1, f);
+}
+
+void printWinner(Gagnant *p, FILE *f){
+	printAnnee(p, f);
+	putc(';', f);
+
+	printNom(p, f);
+	putc(';', f);
+
+	printNature(p, f);
+	putc('\n', f);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,7 +149,7 @@ int numberOfWinners(FILE *f){
 			nbr++;
 		}
 	}
-	return nbr;
+	return nbr-1;
 }
 
 Gagnant **readWinners(FILE *f){
@@ -124,10 +163,11 @@ Gagnant **readWinners(FILE *f){
 	return w;
 }
 
-void printWinner(Gagnant *p, FILE *f){
-	printAnnee(p, f);
-	//short tNom = tailleOfNom(p);
-	//fwrite(p->nom, tNom, 1, f);
+void printWinners(Gagnant **w, FILE *f, int linesNbr){
+	for (int i=0; i<linesNbr; i++){
+		printWinner(w[i],f);
+	}
+	return w;
 }
 
 
@@ -162,7 +202,8 @@ int main(int argc, char** argv)
 	fOut = fopen(outputFilename, "w");
 	int nbr = numberOfWinners(fIn);
 	Gagnant **w = readWinners(fIn);
-	printWinner(w[5], fOut);
+	printWinners(w, fOut, nbr);
+	
 
 	for (int i=0; i<nbr; i++){
 		free(w[i]->nom); 
