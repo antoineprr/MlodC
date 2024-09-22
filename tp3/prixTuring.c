@@ -226,28 +226,19 @@ int main(int argc, char** argv)
     strcpy(filename, "turingWinners.csv");
     strcpy(outputFilename, "out.csv");
 	
-
-	if(argc>2){
-		if (strcmp(argv[1], "-o") == 0) {
-			outputFilename = realloc(outputFilename, (strlen(argv[2]) + 1) * sizeof(char));
-			strcpy(outputFilename, argv[2]);
-			rename("turingWinners.csv", argv[3]);
-			filename = realloc(filename, (strlen(argv[3]) + 1) * sizeof(char));
-			strcpy(filename, argv[3]);
-		}
-		if (strcmp(argv[1], "-info") == 0 && argc>3) {
-			rename("turingWinners.csv", argv[3]);
-			filename = realloc(filename, (strlen(argv[3]) + 1) * sizeof(char));
-			strcpy(filename, argv[3]);
-		}	
-		if (strcmp(argv[1], "--sort") == 0) {
-			if(strcmp(argv[2], "-o") == 0){
-				outputFilename = realloc(outputFilename, (strlen(argv[3]) + 1) * sizeof(char));
-				strcpy(outputFilename, argv[3]);
+	for (int i=0; i<argc-1; i++){
+		if (strcmp(argv[i], "-o") == 0 && argc>i){
+			outputFilename = realloc(outputFilename, (strlen(argv[i+1]) + 1) * sizeof(char));
+			strcpy(outputFilename, argv[i+1]);
+			if(argc>i+1){
+				rename("turingWinners.csv", argv[i+2]);
+				filename = realloc(filename, (strlen(argv[i+2]) + 1) * sizeof(char));
+				strcpy(filename, argv[i+2]);
 			}
-			rename("turingWinners.csv", argv[4]);
-			filename = realloc(filename, (strlen(argv[4]) + 1) * sizeof(char));
-			strcpy(filename, argv[4]);
+		}
+		if (strcmp(argv[i], "-info") == 0 && argc>i+1) {
+			filename = realloc(filename, (strlen(argv[i+2]) + 1) * sizeof(char));
+			strcpy(filename, argv[i+2]);
 		}
 	}
 
@@ -277,8 +268,11 @@ int main(int argc, char** argv)
 			int uneAnnee = atoi(argv[2]);
 			infosAnnee(uneAnnee, w);
 		}
-		if (strcmp(argv[1], "--sort") == 0) {
+		else if (strcmp(argv[1], "--sort") == 0) {
 			sortTuringWinnersByYear(w, fOut, nbr);
+		}
+		else {
+			printWinners(w, fOut, nbr);
 		}
 	}
 
@@ -297,3 +291,5 @@ int main(int argc, char** argv)
 
 	return EXIT_SUCCESS;
 }
+
+
