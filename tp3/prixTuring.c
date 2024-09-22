@@ -135,6 +135,19 @@ void printWinner(Gagnant *p, FILE *f){
 	putc('\n', f);
 }
 
+void triIndice(int *indices, Gagnant **w, int nbr){
+	int i,j,c;
+	for(j=1;j<nbr;j++){ 
+		for(i=0;i<nbr-1;i++){
+			if ( w[indices[i]]->annee > w[indices[i+1]]->annee ) {
+					c = indices[i];
+					indices[i] = indices[i+1];
+					indices[i+1] = c;
+			}  
+		}
+	} 
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // FONCTIONS DEMANDEES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,9 +180,39 @@ void printWinners(Gagnant **w, FILE *f, int linesNbr){
 	for (int i=0; i<linesNbr; i++){
 		printWinner(w[i],f);
 	}
-	return w;
 }
 
+int getIndiceFromAnnee(int uneAnnee, Gagnant **w){
+	int nbr = numberOfWinners;
+	for (int i=0; i<nbr; i++){
+		if (w[i]->annee==uneAnnee){
+			return i;
+		}
+	}
+	return -1;
+}
+
+void infosAnnee(int uneAnnee, Gagnant **w){
+	int indice = getIndiceFromAnnee(uneAnnee, w);
+	if (indice!=-1){
+		printf("L'année %d, le(s) gagnant(s) ont été : %s\n", uneAnnee, w[indice]->nom);
+		printf("Nature des travaux : %s\n", w[indice]->nature);
+	}
+	else{
+		printf("Année non référencée.");
+	}
+}
+
+void sortTuringWinnersByYear(Gagnant **w, FILE *f, int linesNbr){
+	int indices[linesNbr];
+	for (int j=0; j<linesNbr; j++){
+		indices[j]=j;
+	}
+	triIndice(indices, w, linesNbr);
+	for (int i=0; i<linesNbr; i++){
+		printWinner(w[indices[i]],f);
+	}
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // MAIN
@@ -177,10 +220,36 @@ void printWinners(Gagnant **w, FILE *f, int linesNbr){
 
 int main(int argc, char** argv)
 {	
-	char filename[] = "turingWinners.csv";
-	char outputFilename[] = "out.csv";
+    char *filename = (char *)malloc(256 * sizeof(char)); 
+    char *outputFilename = (char *)malloc(256 * sizeof(char)); 
 
-    // TODO
+    strcpy(filename, "turingWinners.csv");
+    strcpy(outputFilename, "out.csv");
+	
+
+	if(argc>2){
+		if (strcmp(argv[1], "-o") == 0) {
+			outputFilename = realloc(outputFilename, (strlen(argv[2]) + 1) * sizeof(char));
+			strcpy(outputFilename, argv[2]);
+			rename("turingWinners.csv", argv[3]);
+			filename = realloc(filename, (strlen(argv[3]) + 1) * sizeof(char));
+			strcpy(filename, argv[3]);
+		}
+		if (strcmp(argv[1], "-info") == 0 && argc>3) {
+			rename("turingWinners.csv", argv[3]);
+			filename = realloc(filename, (strlen(argv[3]) + 1) * sizeof(char));
+			strcpy(filename, argv[3]);
+		}	
+		if (strcmp(argv[1], "--sort") == 0) {
+			if(strcmp(argv[2], "-o") == 0){
+				outputFilename = realloc(outputFilename, (strlen(argv[3]) + 1) * sizeof(char));
+				strcpy(outputFilename, argv[3]);
+			}
+			rename("turingWinners.csv", argv[4]);
+			filename = realloc(filename, (strlen(argv[4]) + 1) * sizeof(char));
+			strcpy(filename, argv[4]);
+		}
+	}
 
 	FILE* fIn;
 	FILE* fOut;
@@ -202,8 +271,16 @@ int main(int argc, char** argv)
 	fOut = fopen(outputFilename, "w");
 	int nbr = numberOfWinners(fIn);
 	Gagnant **w = readWinners(fIn);
-	printWinners(w, fOut, nbr);
 	
+	if(argc>2){
+		if (strcmp(argv[1], "--info") == 0) {
+			int uneAnnee = atoi(argv[2]);
+			infosAnnee(uneAnnee, w);
+		}
+		if (strcmp(argv[1], "--sort") == 0) {
+			sortTuringWinnersByYear(w, fOut, nbr);
+		}
+	}
 
 	for (int i=0; i<nbr; i++){
 		free(w[i]->nom); 
@@ -214,6 +291,9 @@ int main(int argc, char** argv)
 	
 	fclose(fIn);
 	fclose(fOut);
+
+    free(filename);
+    free(outputFilename);
 
 	return EXIT_SUCCESS;
 }
