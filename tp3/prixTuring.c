@@ -23,7 +23,7 @@
 typedef struct {
 	unsigned short annee;
 	char *nom;  // \0 at the end MANDATORY
-	char *nature;
+	char *nature; // same
 } Gagnant ;
 
 
@@ -219,7 +219,7 @@ void sortTuringWinnersByYear(Gagnant **w, FILE *f, int linesNbr){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, char** argv)
-{	
+{
     char *filename = (char *)malloc(256 * sizeof(char)); 
     char *outputFilename = (char *)malloc(256 * sizeof(char)); 
 
@@ -271,9 +271,9 @@ int main(int argc, char** argv)
 		else if (strcmp(argv[1], "--sort") == 0) {
 			sortTuringWinnersByYear(w, fOut, nbr);
 		}
-		else {
-			printWinners(w, fOut, nbr);
-		}
+	}
+	else {
+		printWinners(w, fOut, nbr);
 	}
 
 	for (int i=0; i<nbr; i++){
