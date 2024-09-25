@@ -226,6 +226,7 @@ int main(int argc, char** argv)
     strcpy(filename, "turingWinners.csv");
     strcpy(outputFilename, "out.csv");
 	
+	// options noms fichiers
 	for (int i=0; i<argc-1; i++){
 		if (strcmp(argv[i], "-o") == 0 && argc>i){
 			outputFilename = realloc(outputFilename, (strlen(argv[i+1]) + 1) * sizeof(char));
@@ -242,6 +243,7 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// gestion fichiers
 	FILE* fIn;
 	FILE* fOut;
 	
@@ -259,10 +261,12 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
+	// execution fonctions de base
 	fOut = fopen(outputFilename, "w");
 	int nbr = numberOfWinners(fIn);
 	Gagnant **w = readWinners(fIn);
 	
+	// options avancées
 	if(argc>2){
 		if (strcmp(argv[1], "--info") == 0) {
 			int uneAnnee = atoi(argv[2]);
@@ -276,6 +280,7 @@ int main(int argc, char** argv)
 		printWinners(w, fOut, nbr);
 	}
 
+	// libération mémoire
 	for (int i=0; i<nbr; i++){
 		free(w[i]->nom); 
 		free(w[i]->nature);
