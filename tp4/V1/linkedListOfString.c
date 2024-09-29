@@ -10,7 +10,7 @@
 Liste creer(Element v){
     Liste l;
 	l = malloc(sizeof(Cellule));
-	l->val=calloc(sizeof((char*)v), sizeof(char));
+	l->val=malloc(sizeof((char*)v));
     l->val = v;
 	l->suiv=NULL;
 	return l;
@@ -46,19 +46,16 @@ int main(void){
 	ajoutFin_r(" ! ",l);
 	afficheListe_i(l);
 
-	p = cherche_i(" aaa ",l);
+    char testStr1[4] = "aaa";
+	p = cherche_i(testStr1,l);
 	printf("cherche_i(aaa) : %s\n",estVide(p)?"pas trouve":"[ERREUR] trouve !!!");
 
-    printf("%s\n",l->val);
-    printf("%s\n",l->suiv->val);
-    
-    printf("%i\n", equalsElement(l->val, l->suiv->val));
-
-	p = cherche_i("abc",l);
+    char testStr2[6] = "Hello";
+	p = cherche_r(testStr2,l);
 	if(estVide(p))
-		printf("cherche_i(abc) : [ERREUR] pas trouve \n");
+		printf("cherche_i(Hello) : [ERREUR] pas trouve \n");
 	else {
-		printf("cherche_i(abc) : trouve ");
+		printf("cherche_i(Hello) : trouve ");
 		afficheElement(p->val);
 		printf("\n");
 	}

@@ -17,6 +17,9 @@ Liste ajoutTete(Element v, Liste l) {
 }
 
 // affiche tous les éléments de la liste l
+// Attention, cette fonction doit être indépendante du type des éléments de la liste
+// utiliser une fonction annexe affiche_element
+// Attention la liste peut être vide !
 // version itérative
 void afficheListe_i(Liste l) {
 	while (!estVide(l)){
@@ -67,21 +70,23 @@ void detruire_r(Liste l) {
 // retourne la liste dans laquelle l'élément v a été ajouté en fin
 // version itérative
 Liste ajoutFin_i(Element v, Liste l) {
-	while (!estVide(l->suiv)){
-		l=l->suiv;
+	if(estVide(l)){
+		return creer(v);
 	}
-	l->suiv = creer(v);
+	Liste tempListe = l;
+	while (!estVide(tempListe->suiv)){
+		tempListe=tempListe->suiv;
+	}
+	tempListe->suiv = creer(v);
 	return l;
 }
 
 // version recursive
 Liste ajoutFin_r(Element v, Liste l) {
-	if(estVide(l->suiv)){
-		l->suiv = creer(v);
+	if(estVide(l)){
+		return creer(v);
 	}
-	else{
-		ajoutFin_r(v, l->suiv);
-	}
+	l->suiv=ajoutFin_r(v, l->suiv);
 	return l;
 }
 
@@ -92,9 +97,7 @@ Liste cherche_i(Element v,Liste l) {
 		if(equalsElement(v, l->val)){
 			return l;
 		}
-		else{
-			l=l->suiv;
-		}
+		l=l->suiv;
 	}
 	return NULL;
 }
@@ -117,46 +120,45 @@ Liste cherche_r(Element v,Liste l) {
 // version itérative
 Liste retirePremier_i(Element v, Liste l) {
 	Liste currentListe = l;
-	Liste tempListe;
-
-	//cas le premier elt
-	if (cherche_r(v, l)==l){
-		tempListe=l->suiv;
+	if(estVide(l)){
+		return NULL;
+	}
+	//cas premier elt
+	if (equalsElement(l->val, v)){
+		currentListe=l->suiv;
 		detruireElement(l->val);
 		free(l);
-		//l=NULL;
-		return tempListe;
+		return currentListe;
 	}
 
-	while(!estVide(currentListe)){
-		if(!estVide(currentListe->suiv) && equalsElement(v, currentListe->suiv->val)){
-			tempListe=currentListe->suiv;
-			currentListe->suiv=tempListe->suiv;
-			detruireElement(tempListe->val);
-			free(tempListe);
-			//tempListe=NULL;
-			return l;
-		}
-		else{
-			currentListe=currentListe->suiv;
-		}
+	Liste prec = l, p = l->suiv;
+
+	while(!estVide(p) && !equalsElement(p->val,v)){
+		prec=p;
+		p=p->suiv;
 	}
+	if(!estVide(p)){
+		prec->suiv=p->suiv;
+		p->suiv=NULL;
+		detruire_i(p);
+	}
+
 	return l;
 }
 
 
 // version recursive
 Liste retirePremier_r(Element v, Liste l) {
-	if(equalsElement(v, l->val)){
-		Liste tempListe = l->suiv;
-		detruireElement(l->val);
-		free(l);
-		return tempListe;
-	}
-	else{
+	if(!estVide(l)){
+		if(equalsElement(v, l->val)){
+			Liste tempListe = l->suiv;
+			l->suiv=NULL;
+			detruire_i(l);
+			return tempListe;
+		}
 		l->suiv=retirePremier_r(v, l->suiv);
-		return l;
 	}
+	return l;
 }
 
 
