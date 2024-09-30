@@ -17,7 +17,7 @@ typedef Cellule* Liste;
 bool estVide(Liste l);
 
 // créer une liste d'un seul élément contenant la valeur v
-extern Liste creer(Element v);
+Liste creer(Element v);
 
 // ajoute l'élément v en tete de la liste l
 Liste ajoutTete(Element v, Liste l);

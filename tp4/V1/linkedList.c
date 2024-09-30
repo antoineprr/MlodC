@@ -9,6 +9,15 @@ bool estVide(Liste l) {
 	return l==NULL;
 }
 
+// créer une liste d'un seul élément contenant la valeur v
+Liste creer(Element v){
+    Liste l;
+	l = malloc(sizeof(Cellule));
+    l->val = v;
+	l->suiv=NULL;
+	return l;
+}
+
 // ajoute l'élément v en tete de la liste l
 Liste ajoutTete(Element v, Liste l) {
 	Liste newL = creer(v);
@@ -57,7 +66,7 @@ void detruire_i(Liste l) {
 // version récursive
 void detruire_r(Liste l) {
 	if(estVide(l)){
-
+        return;
 	}
 	else {
 		detruire_r(l->suiv);
