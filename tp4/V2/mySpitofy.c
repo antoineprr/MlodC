@@ -6,49 +6,67 @@
 #include <string.h>
 #include "linkedListOfMusic.h"
 
-Music* parseMusic(char* line) {
-    Music* music = (Music*)malloc(sizeof(Music));
-
-    music->name = strdup(strsep(&line, ","));
-    music->artist = strdup(strsep(&line, ","));
-    music->album = strdup(strsep(&line, ","));
-    music->genre = strdup(strsep(&line, ","));
-    music->disc_number = atoi(strsep(&line, ","));
-    music->track_number = atoi(strsep(&line, ","));
-    music->year = atoi(strsep(&line, ","));
-
-    return music;
+bool equalsElement(Element e1, Element e2){
+    return (strcmp(e1->name, e2->name)==0 
+        && strcmp(e1->artist, e2->artist)==0 
+        && strcmp(e1->album, e2->album)==0 
+        && strcmp(e1->genre, e2->genre)==0
+        && e1->disc_number == e2->disc_number
+        && e1->track_number == e2->track_number
+        && e1->year == e2->year);
 }
 
+Element creerMusique(char* name, char* artist, char* album, char* genre, int disc_number, int track_number, int year){
+    Element e;
+    e = malloc(sizeof(Music));
+    e->name=name;
+    e->artist=artist;
+    e->album=album;
+    e->genre=genre;
+    e->disc_number=disc_number;
+    e->track_number=track_number;
+    e->year=year;
+    return e;
+}
 
-int main() {
+void afficheElement(Element e){
+    printf("%s,%s,%s,%s,%i,%i,%i\n",
+        e->name,e->artist,e->album,
+        e->genre,e->disc_number,e->track_number,
+        e->year);
+}
+
+void detruireElement(Element e){
+    free(e);
+}
+
+Element parseurMusic(char* line){
+
+}
+
+int main(void){
+	Liste l, p;
+     
     FILE* file = fopen("music.csv", "r");
 
-    MusicList liste = NULL;
-
     char line[1024];
-    fgets(line, sizeof(line), file); // pour ignorer la premiere ligne
+    fgets(line, sizeof(line), file); //premiere ligne
 
-
-    while (fgets(line, sizeof(line), file)) {
-        Music* music = parseMusic(line);
-        if (music) {
-            liste = addMusic(liste, music);
-        }
-    }
-
-    fclose(file);
-
-    printf("Liste des musiques avant tri:\n");
-    diplayMusicList(liste);
-
-    sortMusicsByYear(&liste);
-
-    printf("\nListe des musiques après tri par année:\n");
-    diplayMusicList(liste);
     
+    fgets(line, sizeof(line), file);
+    printf("%s\n", line);
+    //Element musicTestParseur = parseurMusic(line);
+    
+	// l = NULL;
+	// printf("estVide(l) = %s\n",estVide(l)?"TRUE":"FALSE");
 
-    destroyMusicList(liste);
+    // Element musicTest = creerMusique("Them Bones","Alice In Chains","Dirt","Alternative",1,1,1992);
+    // Element musicTest2 = creerMusique("Dam That River","Alice In Chains","Dirt","Alternative",1,2,1992);
 
+    // l=creer(musicTest2);
+    // l=ajoutTete(musicTest, l);
+    // afficheListe_r(l);
+
+    // detruire_r(l);
     return 0;
 }

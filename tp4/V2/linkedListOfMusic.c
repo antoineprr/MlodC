@@ -2,75 +2,184 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-MusicList createMusic(char* name, char* artist, char* album, char* genre, int disc_number, int track_number, int year) {
-    MusicList newMusic = malloc(sizeof(Music));
-    newMusic->name = strdup(name);
-    newMusic->artist = strdup(artist);
-    newMusic->album = strdup(album);
-    newMusic->genre = strdup(genre);
-    newMusic->disc_number = disc_number;
-    newMusic->track_number = track_number;
-    newMusic->year = year;
-    newMusic->nextMusic = NULL;
-    return newMusic;
+#define TODO NULL;
+
+// retourne vrai si l est vide et faux sinon
+bool estVide(Liste l) {
+	return l==NULL;
 }
 
-MusicList addMusic(MusicList liste, MusicList nouvelleMusique) {
-    nouvelleMusique->nextMusic = liste;
-    return nouvelleMusique;
+// créer une liste d'un seul élément contenant la valeur v
+Liste creer(Element v){
+    Liste l;
+	l = malloc(sizeof(Cellule));
+    l->music = v;
+	l->suiv=NULL;
+	return l;
 }
 
-void diplayMusicList(MusicList liste) {
-    MusicList currentList = liste;
-    while (currentList != NULL) {
-        printf("%s,%s,%s,%s,%d,%d,%d\n", 
-               currentList->name, currentList->artist, currentList->album, currentList->genre, 
-               currentList->disc_number, currentList->track_number, currentList->year);
-        currentList = currentList->nextMusic;
-    }
+// ajoute l'élément v en tete de la liste l
+Liste ajoutTete(Element v, Liste l) {
+	Liste newL = creer(v);
+	newL->suiv = l;
+	return newL;
 }
 
-void destroyMusicList(MusicList liste) {
-    if(liste != NULL){
-        destroyMusicList(liste->nextMusic);
-        free(liste->name);
-        free(liste->artist);
-        free(liste->album);
-        free(liste->genre);
-        free(liste);
-    }
+// affiche tous les éléments de la liste l
+// Attention, cette fonction doit être indépendante du type des éléments de la liste
+// utiliser une fonction annexe affiche_element
+// Attention la liste peut être vide !
+// version itérative
+void afficheListe_i(Liste l) {
+	while (!estVide(l)){
+		afficheElement(l->music);
+		l=l->suiv;
+	}
+	printf("\n");
 }
 
-MusicList sortMusicsByYear(MusicList liste) {
-    if (liste == NULL || liste->nextMusic == NULL) {
-        return liste; 
-    }
-
-    bool change;
-    MusicList currentList;
-    Music tempMusic;
-
-    do {
-        change = false;
-        currentList = liste;
-
-        while (currentList->nextMusic != NULL) {
-            if (currentList->year > currentList->nextMusic->year) {
-                // Swap contents, not pointers
-                tempMusic = *currentList;
-                *currentList = *(currentList->nextMusic);
-                *(currentList->nextMusic) = tempMusic;
-
-                // Fix the next pointers after swap
-                tempMusic.nextMusic = currentList->nextMusic->nextMusic;
-                currentList->nextMusic->nextMusic = currentList->nextMusic;
-                currentList->nextMusic = tempMusic.nextMusic;
-
-                change = true;
-            }
-            currentList = currentList->nextMusic;
-        }
-    } while (change);
-
-    return liste;
+// version recursive
+void afficheListe_r(Liste l) {
+	if (estVide(l)){
+		printf("\n");
+		return ;
+	}
+	else {
+		afficheElement(l->music);
+		afficheListe_r(l->suiv);
+	}
 }
+
+// Détruit tous les éléments de la liste l
+// version itérative
+void detruire_i(Liste l) {
+	Liste tempListe;
+	while (!estVide(l)){
+		tempListe=l;
+		l=l->suiv;
+		detruireElement(tempListe->music);
+		free(tempListe);
+		//tempListe=NULL;
+	}
+}
+
+// version récursive
+void detruire_r(Liste l) {
+	if(estVide(l)){
+        return;
+	}
+	else {
+		detruire_r(l->suiv);
+		detruireElement(l->music);
+		free(l);
+		//l=NULL;
+	}
+}
+
+// retourne la liste dans laquelle l'élément v a été ajouté en fin
+// version itérative
+Liste ajoutFin_i(Element v, Liste l) {
+	if(estVide(l)){
+		return creer(v);
+	}
+	Liste tempListe = l;
+	while (!estVide(tempListe->suiv)){
+		tempListe=tempListe->suiv;
+	}
+	tempListe->suiv = creer(v);
+	return l;
+}
+
+// version recursive
+Liste ajoutFin_r(Element v, Liste l) {
+	if(estVide(l)){
+		return creer(v);
+	}
+	l->suiv=ajoutFin_r(v, l->suiv);
+	return l;
+}
+
+// Retourne un pointeur sur l'élément de la liste l contenant la musiceur v ou NULL
+// version itérative
+Liste cherche_i(Element v,Liste l) {
+	while(!estVide(l)){
+		if(equalsElement(v, l->music)){
+			return l;
+		}
+		l=l->suiv;
+	}
+	return NULL;
+}
+
+// version récursive
+Liste cherche_r(Element v,Liste l) {
+	if(estVide(l)){
+		return NULL;
+	}
+	else{
+		if(equalsElement(v, l->music)){
+			return l;
+		}
+		cherche_r(v, l->suiv);
+	}
+}
+
+// Retourne la liste modifiée dans la laquelle le premier élément ayant la musiceur v a été supprimé
+// ne fait rien si aucun élément possède cette musiceur
+// version itérative
+Liste retirePremier_i(Element v, Liste l) {
+	Liste currentListe = l;
+	if(estVide(l)){
+		return NULL;
+	}
+	//cas premier elt
+	if (equalsElement(l->music, v)){
+		currentListe=l->suiv;
+		detruireElement(l->music);
+		free(l);
+		return currentListe;
+	}
+
+	Liste prec = l, p = l->suiv;
+
+	while(!estVide(p) && !equalsElement(p->music,v)){
+		prec=p;
+		p=p->suiv;
+	}
+	if(!estVide(p)){
+		prec->suiv=p->suiv;
+		p->suiv=NULL;
+		detruire_i(p);
+	}
+
+	return l;
+}
+
+
+// version recursive
+Liste retirePremier_r(Element v, Liste l) {
+	if(!estVide(l)){
+		if(equalsElement(v, l->music)){
+			Liste tempListe = l->suiv;
+			l->suiv=NULL;
+			detruire_i(l);
+			return tempListe;
+		}
+		l->suiv=retirePremier_r(v, l->suiv);
+	}
+	return l;
+}
+
+
+void afficheEnvers_r(Liste l) {
+	if(estVide(l)){
+		return ;
+	}
+	else {
+		afficheEnvers_r(l->suiv);
+		afficheElement(l->music);
+	}
+}
+
+
+
